@@ -1,0 +1,53 @@
+version: '3.5'
+services:
+  zookeeper:
+    hostname: zookeeper
+    image: "confluentinc/cp-zookeeper:5.3.0"
+    networks:
+      - streams-net
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: "confluentinc/cp-enterprise-kafka:5.3.0"
+    hostname: kafka
+    networks:
+      - streams-net
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
+
+  schema-registry:
+    hostname: schema-registry
+    image: "confluentinc/cp-schema-registry:5.3.0"
+    networks:
+      - streams-net
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+
+  tools:
+    image: cnfltraining/training-tools:19.06
+    hostname: tools
+    networks:
+      - streams-net
+    volumes:
+      - .:/root/confluent-streams/labs/streams-writing
+    working_dir: /root/confluent-streams/labs/streams-writing
+    command: /bin/bash
+    tty: true
+
+
+networks:
+  streams-net:
