@@ -8,20 +8,20 @@ lazy val commonSettings = Seq(
   resolvers += "Confluent Maven Repository" at "https://packages.confluent.io/maven/"
 )
 
-lazy val root = (project in file(".")).aggregate(domain)
+lazy val root = (project in file(".")).aggregate(carMetricsProducer, carMetricsConsumer, avro, domain)
 
-lazy val measurementProducer = (project in file("measurement-producer"))
+lazy val carMetricsProducer = (project in file("car-metrics-producer"))
   .settings(commonSettings)
   .settings(
-    name := "measurement-producer",
+    name := "car-metrics-producer",
     libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro)
   )
   .dependsOn(domain, avro)
 
-lazy val measurementConsumer = (project in file("measurement-consumer"))
+lazy val carMetricsConsumer = (project in file("car-metrics-consumer"))
   .settings(commonSettings)
   .settings(
-    name := "measurement-consumer",
+    name := "car-metrics-consumer",
     libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro)
   )
   .dependsOn(domain, avro)

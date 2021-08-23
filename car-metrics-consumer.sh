@@ -1,0 +1,1 @@
+kafka-console-consumer --bootstrap-server kafka:9092 --from-beginning --topic car-metrics
