@@ -2,9 +2,16 @@ package car
 
 import car.CarMetric._
 import car.avro.Avro
-import io.confluent.kafka.serializers.{AbstractKafkaAvroSerDeConfig, KafkaAvroSerializer}
+import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.IndexedRecord
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.kafka.clients.producer.ProducerConfig.{
+  BOOTSTRAP_SERVERS_CONFIG,
+  CLIENT_ID_CONFIG,
+  KEY_SERIALIZER_CLASS_CONFIG,
+  VALUE_SERIALIZER_CLASS_CONFIG
+}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 import java.util.Properties
 import scala.annotation.tailrec
@@ -13,11 +20,11 @@ import scala.util.Random
 object CarMetricsProducer extends App {
 
   val props = new Properties()
-  props.put(ProducerConfig.CLIENT_ID_CONFIG, "car-metrics-producer")
-  props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092")
-  props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
-  props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
-  props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081")
+  props.put(CLIENT_ID_CONFIG, "car-metrics-producer")
+  props.put(BOOTSTRAP_SERVERS_CONFIG, "kafka:9092")
+  props.put(KEY_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
+  props.put(VALUE_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
+  props.put(SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081")
 
   val producer = new KafkaProducer[IndexedRecord, IndexedRecord](props)
 

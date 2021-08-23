@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val kafka = "2.7.0"
-    val kafkaAvro = "5.3.0"
+    val kafka = "2.8.0"
+    val kafkaAvro = "6.2.0"
     val avro4s = "4.0.10"
     val sttp3 = "3.3.11"
     val circe = "0.14.1"
@@ -14,6 +14,7 @@ object Dependencies {
     val kafkaClient = "org.apache.kafka" % "kafka-clients" % Versions.kafka
     val kafkaStreams = "org.apache.kafka" % "kafka-streams" % Versions.kafka
     val kafkaAvro = "io.confluent" % "kafka-avro-serializer" % Versions.kafkaAvro
+    val kafkaStreamsAvro = "io.confluent" % "kafka-streams-avro-serde" % Versions.kafkaAvro
 
     val avro4sCore = "com.sksamuel.avro4s" % "avro4s-core_2.13" % Versions.avro4s
 

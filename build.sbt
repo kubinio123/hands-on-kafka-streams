@@ -26,6 +26,14 @@ lazy val carMetricsConsumer = (project in file("car-metrics-consumer"))
   )
   .dependsOn(domain, avro)
 
+lazy val driverNotifier = (project in file("driver-notifier"))
+  .settings(commonSettings)
+  .settings(
+    name := "driver-notifier",
+    libraryDependencies ++= Seq(Libs.kafkaStreams, Libs.kafkaStreamsAvro)
+  )
+  .dependsOn(domain, avro)
+
 lazy val avro = (project in file("avro"))
   .settings(commonSettings)
   .settings(
