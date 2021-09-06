@@ -13,6 +13,7 @@ object Dependencies {
   object Libs {
     val kafkaClient = "org.apache.kafka" % "kafka-clients" % Versions.kafka
     val kafkaStreams = "org.apache.kafka" % "kafka-streams" % Versions.kafka
+    val kafkaStreamsScala = "org.apache.kafka" %% "kafka-streams-scala" % Versions.kafka
     val kafkaAvro = "io.confluent" % "kafka-avro-serializer" % Versions.kafkaAvro
     val kafkaStreamsAvro = "io.confluent" % "kafka-streams-avro-serde" % Versions.kafkaAvro
 

@@ -16,6 +16,7 @@ import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import java.util.Properties
 import scala.annotation.tailrec
 import scala.util.Random
+import scala.concurrent.duration.DurationInt
 
 object CarMetricsProducer extends App {
 
@@ -82,7 +83,7 @@ object CarMetricsProducer extends App {
         .get()
     }
 
-    Thread.sleep(5)
+    Thread.sleep(5.minutes.toMillis)
 
     produce()
   }
