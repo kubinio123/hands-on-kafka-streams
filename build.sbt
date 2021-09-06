@@ -22,7 +22,7 @@ lazy val carMetricsConsumer = (project in file("car-metrics-consumer"))
   .settings(commonSettings)
   .settings(
     name := "car-metrics-consumer",
-    libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro)
+    libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro, Libs.catsEffect)
   )
   .dependsOn(domain, avro)
 

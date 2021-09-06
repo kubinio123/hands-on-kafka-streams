@@ -83,7 +83,7 @@ object CarMetricsProducer extends App {
         .get()
     }
 
-    Thread.sleep(5.minutes.toMillis)
+    Thread.sleep(1000)
 
     produce()
   }

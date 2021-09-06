@@ -33,7 +33,9 @@ object DriverNotifier extends App {
 
   implicit val carMetricKeySerde: Serde[CarMetricKey] = avroKeySerde.forCaseClass[CarMetricKey]
   implicit val carMetricValueSerde: Serde[CarMetricValue] = avroValueSerde.forCaseClass[CarMetricValue]
-  implicit val carMetricKV: Consumed[CarMetricKey, CarMetricValue] = Consumed.`with`(carMetricKeySerde, carMetricValueSerde)
+  implicit val carMetricConsumed: Consumed[CarMetricKey, CarMetricValue] = Consumed.`with`(carMetricKeySerde, carMetricValueSerde)
+
+  implicit val driverNotificationKeySerde: Serde[DriverNotificationKey] = avroKeySerde.forCaseClass[DriverNotificationKey]
 
   val builder: StreamsBuilder = new StreamsBuilder
 
@@ -43,7 +45,7 @@ object DriverNotifier extends App {
 
   val carMetricsCount: KTable[DriverNotificationKey, Long] = carMetrics.map((key, value) => (DriverNotificationKey(key.carId), s"$value")).groupBy((key, _) => key).count()
 
-  carMetricsCount.toStream.to
+  carMetricsCount.toStream.peek((key, value) => println(s"$key -> $value")).to("driver-notifications")
 
   val topology = builder.build()
   val streams = new KafkaStreams(topology, props)
