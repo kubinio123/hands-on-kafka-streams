@@ -1,8 +1,11 @@
 package car
 
-import car.CarMetric._
+import car.Produce.send
 import car.avro.Avro
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
+import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.syntax.all._
+import com.sksamuel.avro4s.RecordFormat
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.IndexedRecord
 import org.apache.kafka.clients.producer.ProducerConfig.{
@@ -13,80 +16,36 @@ import org.apache.kafka.clients.producer.ProducerConfig.{
 }
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
-import java.util.Properties
-import scala.annotation.tailrec
-import scala.util.Random
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters._
 
-object CarMetricsProducer extends App {
-
-  val props = new Properties()
-  props.put(CLIENT_ID_CONFIG, "car-metrics-producer")
-  props.put(BOOTSTRAP_SERVERS_CONFIG, "kafka:9092")
-  props.put(KEY_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
-  props.put(VALUE_SERIALIZER_CLASS_CONFIG, classOf[KafkaAvroSerializer])
-  props.put(SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081")
-
-  val producer = new KafkaProducer[IndexedRecord, IndexedRecord](props)
-
-  val carIds = Seq(1, 2, 3)
-
-  val cities = Seq("Wroclaw", "Cracow", "Warsaw")
-
-  @tailrec
-  def produce(): Unit = {
-    carIds.foreach { carId =>
-      val metrics = Seq(
-        (Speed, Random.between(100, 130)),
-        (EngineRpm, Random.between(2000, 2100)),
-        (TirePressure, Random.between(1, 2))
-      )
-
-      metrics.foreach {
-        case (metric, value) =>
-          producer
-            .send(
-              new ProducerRecord[IndexedRecord, IndexedRecord](
-                "car-metrics",
-                Avro.carMetricKeyRecordFormat.to(CarMetricKey(carId, metric)),
-                Avro.carMetricValueRecordFormat.to(CarMetricValue(value))
-              )
-            )
-            .get()
-      }
-
-      val city = cities(Random.nextInt(cities.length))
-
-      producer
-        .send(
-          new ProducerRecord[IndexedRecord, IndexedRecord](
-            "car-locations",
-            Avro.carLocationKeyRecordFormat.to(CarLocationKey(carId)),
-            Avro.carLocationValueRecordFormat.to(CarLocationValue(city))
-          )
-        )
-        .get()
+object CarMetricsProducer extends IOApp {
+  override def run(args: List[String]): IO[ExitCode] = {
+    import Avro._
+    Resource.make(IO(new KafkaProducer[IndexedRecord, IndexedRecord](Produce.props.asJava)))(p => IO(p.close())).use { producer =>
+      Seq(
+        (send(producer)("car-metrics", RandomData.carMetrics) *> IO.sleep(10.seconds)).foreverM,
+        (send(producer)("car-locations", RandomData.carLocations) *> IO.sleep(1.minute)).foreverM,
+        (send(producer)("weather", RandomData.weather) *> IO.sleep(1.minute)).foreverM
+      ).parSequence_.as(ExitCode.Success)
     }
-
-    cities.foreach { city =>
-      val temperature = Random.between(10, 30)
-      val isStorming = Random.nextBoolean()
-
-      producer
-        .send(
-          new ProducerRecord[IndexedRecord, IndexedRecord](
-            "weather",
-            Avro.weatherKeyRecordFormat.to(WeatherKey(city)),
-            Avro.weatherValueRecordFormat.to(WeatherValue(temperature, isStorming))
-          )
-        )
-        .get()
-    }
-
-    Thread.sleep(1000)
-
-    produce()
   }
+}
 
-  produce()
+object Produce {
+
+  def send[K, V](
+      producer: KafkaProducer[IndexedRecord, IndexedRecord]
+  )(topic: String, records: Seq[(K, V)])(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Unit] =
+    records.traverse {
+      case (k, v) => IO(producer.send(new ProducerRecord[IndexedRecord, IndexedRecord](topic, krf.to(k), vrf.to(v))).get())
+    }.void
+
+  val props: Map[String, Object] = Map(
+    CLIENT_ID_CONFIG -> "car-metrics-producer",
+    BOOTSTRAP_SERVERS_CONFIG -> "kafka:9092",
+    KEY_SERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroSerializer],
+    VALUE_SERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroSerializer],
+    SCHEMA_REGISTRY_URL_CONFIG -> "http://schema-registry:8081"
+  )
 }

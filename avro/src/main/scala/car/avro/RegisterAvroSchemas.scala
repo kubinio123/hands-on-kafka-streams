@@ -13,22 +13,22 @@ object RegisterAvroSchemas extends App {
   Seq(
     ("car-metrics-key", RegisterSchemaRequest(Avro.carMetricKeySchema.toString())),
     ("car-metrics-value", RegisterSchemaRequest(Avro.carMetricValueSchema.toString())),
-
+    //
     ("car-locations-key", RegisterSchemaRequest(Avro.carLocationKeySchema.toString())),
     ("car-locations-value", RegisterSchemaRequest(Avro.carLocationValueSchema.toString())),
-
+    //
     ("weather-key", RegisterSchemaRequest(Avro.weatherKeySchema.toString())),
     ("weather-value", RegisterSchemaRequest(Avro.weatherValueSchema.toString())),
-
+    //
     ("driver-notifications-key", RegisterSchemaRequest(Avro.driverNotificationKeySchema.toString())),
     ("driver-notifications-value", RegisterSchemaRequest(Avro.driverNotificationValueSchema.toString()))
   ).map {
     case (subject, schema) =>
-      basicRequest
+      subject -> basicRequest
         .post(uri"http://schema-registry:8081/subjects/$subject/versions")
         .contentType("application/vnd.schemaregistry.v1+json")
         .body(schema)
         .send(backend)
         .code
-  } foreach { statusCode => println(s"Registered schema code: $statusCode") }
+  } foreach { case (subject, statusCode) => println(s"Register schema $subject, response code: $statusCode") }
 }

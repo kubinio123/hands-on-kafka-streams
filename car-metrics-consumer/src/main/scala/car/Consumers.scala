@@ -36,9 +36,9 @@ object Consume {
       })(c => IO(println(s"[$topic] closing consumer...")) *> IO(c.close()))
       .use { consumer =>
         val consume: IO[Unit] = for {
-          records <- IO(consumer.poll(Duration.ofSeconds(5)).asScala)
-          keyValue = records.map { record => (krf.from(record.key()), vrf.from(record.value())) }
-          _ <- keyValue.foldLeft(IO.unit) { case (prev, (k, v)) => prev *> IO.pure(println(s"[$topic] $k => $v")) }
+          records <- IO(consumer.poll(Duration.ofSeconds(5)).asScala.toSeq)
+          keyValue = records.map { r => (krf.from(r.key()), vrf.from(r.value())) }
+          _ <- keyValue.traverse { case (k, v) => IO(println(s"[$topic] $k => $v")) }
         } yield ()
         consume.foreverM
       }
