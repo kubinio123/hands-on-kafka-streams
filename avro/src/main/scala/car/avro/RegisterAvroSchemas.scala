@@ -11,17 +11,20 @@ object RegisterAvroSchemas extends App {
   val backend = HttpURLConnectionBackend()
 
   Seq(
-    ("car-metrics-key", RegisterSchemaRequest(Avro.carMetricKeySchema.toString())),
-    ("car-metrics-value", RegisterSchemaRequest(Avro.carMetricValueSchema.toString())),
+    ("car-speed-key", RegisterSchemaRequest(Avro.carDataKeySchema.toString())),
+    ("car-speed-value", RegisterSchemaRequest(Avro.carSpeedDataSchema.toString())),
     //
-    ("car-locations-key", RegisterSchemaRequest(Avro.carLocationKeySchema.toString())),
-    ("car-locations-value", RegisterSchemaRequest(Avro.carLocationValueSchema.toString())),
+    ("car-engine-key", RegisterSchemaRequest(Avro.carDataKeySchema.toString())),
+    ("car-engine-value", RegisterSchemaRequest(Avro.carEngineDataSchema.toString())),
     //
-    ("weather-key", RegisterSchemaRequest(Avro.weatherKeySchema.toString())),
-    ("weather-value", RegisterSchemaRequest(Avro.weatherValueSchema.toString())),
+    ("car-location-key", RegisterSchemaRequest(Avro.carDataKeySchema.toString())),
+    ("car-location-value", RegisterSchemaRequest(Avro.carLocationDataSchema.toString())),
     //
-    ("driver-notifications-key", RegisterSchemaRequest(Avro.driverNotificationKeySchema.toString())),
-    ("driver-notifications-value", RegisterSchemaRequest(Avro.driverNotificationValueSchema.toString()))
+    ("location-data-key", RegisterSchemaRequest(Avro.locationDataKeySchema.toString())),
+    ("location-data-value", RegisterSchemaRequest(Avro.locationDataSchema.toString())),
+    //
+    ("driver-notification-key", RegisterSchemaRequest(Avro.carDataKeySchema.toString())),
+    ("driver-notification-value", RegisterSchemaRequest(Avro.driverNotificationSchema.toString()))
   ).map {
     case (subject, schema) =>
       subject -> basicRequest

@@ -1,17 +1,16 @@
 package object car {
-  object CarMetric extends Enumeration {
-    val Speed, EngineRpm, TirePressure, BrakeFluidPressure = Value
+
+  case class CarDataKey(carId: Int)
+
+  case class CarSpeedData(speed: Int)
+  case class CarEngineData(rpm: Int)
+  case class CarLocationData(city: String, street: String)
+  case class DriverNotification(msg: String)
+
+  case class LocationDataKey(city: String, street: String)
+  case class LocationData(speedLimit: Int, trafficVolume: TrafficVolume.Value)
+
+  object TrafficVolume extends Enumeration {
+    val Low, Medium, High = Value
   }
-
-  case class CarMetricKey(carId: Int, metric: CarMetric.Value)
-  case class CarMetricValue(value: Int)
-
-  case class CarLocationKey(carId: Int)
-  case class CarLocationValue(city: String)
-
-  case class WeatherKey(city: String)
-  case class WeatherValue(temperature: Int, isStorming: Boolean)
-
-  case class DriverNotificationKey(carId: Int)
-  case class DriverNotificationValue(msg: String)
 }

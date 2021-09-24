@@ -9,6 +9,7 @@ object Dependencies {
     val sttp3 = "3.3.11"
     val circe = "0.14.1"
     val cats = "3.2.5"
+    val smlCommon = "2.3.1"
   }
 
   object Libs {
@@ -25,5 +26,7 @@ object Dependencies {
     val circeGeneric = "io.circe" %% "circe-generic" % V.circe
 
     val catsEffect = "org.typelevel" %% "cats-effect" % V.cats
+
+    val smlTagging = "com.softwaremill.common" %% "tagging" % V.smlCommon
   }
 }

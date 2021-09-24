@@ -13,21 +13,22 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 import scala.jdk.CollectionConverters._
 
-object Consumers extends IOApp {
+object CarDataConsumer extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     import Avro._
     Seq(
-      Consume.forever[CarMetricKey, CarMetricValue]("car-metrics"),
-      Consume.forever[CarLocationKey, CarLocationValue]("car-locations"),
-      Consume.forever[WeatherKey, WeatherValue]("weather"),
-      Consume.forever[DriverNotificationKey, DriverNotificationValue]("driver-notifications")
+      Consume.forever[CarDataKey, CarSpeedData]("car-speed"),
+      Consume.forever[CarDataKey, CarEngineData]("car-engine"),
+      Consume.forever[CarDataKey, CarLocationData]("car-location"),
+      Consume.forever[LocationDataKey, LocationData]("location-data"),
+      Consume.forever[CarDataKey, DriverNotification]("driver-notification")
     ).parSequence_.as(ExitCode.Success)
   }
 }
 
 object Consume {
 
-  def forever[K >: Null, V >: Null](topic: String)(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Nothing] =
+  def forever[K, V](topic: String)(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Nothing] =
     Resource
       .make(IO {
         val consumer = new KafkaConsumer[IndexedRecord, IndexedRecord](props.asJava)

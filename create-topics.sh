@@ -1,6 +1,7 @@
 #!/bin/bash
 
-kafka-topics --create --bootstrap-server kafka:9092 --partitions 6 --replication-factor 1 --topic car-metrics
-kafka-topics --create --bootstrap-server kafka:9092 --partitions 6 --replication-factor 1 --topic car-locations
-kafka-topics --create --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic weather
-kafka-topics --create --bootstrap-server kafka:9092 --partitions 3 --replication-factor 1 --topic driver-notifications
+kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic car-speed
+kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic car-engine
+kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic car-location
+kafka-topics --create --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --topic location-data
+kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic driver-notification

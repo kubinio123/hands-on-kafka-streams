@@ -8,20 +8,20 @@ lazy val commonSettings = Seq(
   resolvers += "Confluent Maven Repository" at "https://packages.confluent.io/maven/"
 )
 
-lazy val root = (project in file(".")).aggregate(carMetricsProducer, carMetricsConsumer, avro, domain)
+lazy val root = (project in file(".")).aggregate(carDataProducer, carDataConsumer, driverNotifier, avro, domain)
 
-lazy val carMetricsProducer = (project in file("car-metrics-producer"))
+lazy val carDataProducer = (project in file("car-data-producer"))
   .settings(commonSettings)
   .settings(
-    name := "car-metrics-producer",
+    name := "car-data-producer",
     libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro, Libs.catsEffect)
   )
   .dependsOn(domain, avro)
 
-lazy val carMetricsConsumer = (project in file("car-metrics-consumer"))
+lazy val carDataConsumer = (project in file("car-data-consumer"))
   .settings(commonSettings)
   .settings(
-    name := "car-metrics-consumer",
+    name := "car-data-consumer",
     libraryDependencies ++= Seq(Libs.kafkaClient, Libs.kafkaAvro, Libs.catsEffect)
   )
   .dependsOn(domain, avro)
@@ -38,7 +38,7 @@ lazy val avro = (project in file("avro"))
   .settings(commonSettings)
   .settings(
     name := "avro",
-    libraryDependencies ++= Seq(Libs.avro4sCore, Libs.sttp3Core, Libs.sttp3Circe, Libs.circeGeneric)
+    libraryDependencies ++= Seq(Libs.avro4sCore, Libs.sttp3Core, Libs.sttp3Circe, Libs.circeGeneric, Libs.smlTagging)
   )
   .dependsOn(domain)
 
