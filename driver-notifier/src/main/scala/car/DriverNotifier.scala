@@ -4,10 +4,13 @@ import car.Avro4s._
 import car.avro.Avro._
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsConfig.{APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG}
+import org.apache.kafka.streams.kstream.JoinWindows
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala._
-import org.apache.kafka.streams.scala.kstream.KStream
+import org.apache.kafka.streams.scala.kstream.Materialized
 
+import java.time.Duration
+import java.time.temporal.ChronoUnit.SECONDS
 import java.util.Properties
 
 object DriverNotifier extends App {
@@ -19,10 +22,20 @@ object DriverNotifier extends App {
 
   val builder: StreamsBuilder = new StreamsBuilder
 
-  val carSpeed: KStream[CarDataKey, CarSpeedData] = builder.stream("car-speed")
-  val carEngine: KStream[CarDataKey, CarEngineData] = builder.stream("car-engine")
-  val carLocation: KStream[CarDataKey, CarLocationData] = builder.stream("car-location")
-  val locationData: KStream[LocationDataKey, LocationData] = builder.stream("location-data")
+  val carSpeed = builder.stream[CarDataKey, CarSpeedData]("car-speed").groupByKey
+  val carEngine = builder.stream[CarDataKey, CarEngineData]("car-engine").groupByKey
+  val carLocation = builder.stream[CarDataKey, CarLocationData]("car-location").groupByKey
+  val locationData = builder.stream[LocationDataKey, LocationData]("location-data").toTable
+
+  val window = JoinWindows.of(Duration.of(60, SECONDS))
+
+  case class CarData(speed: CarSpeedData, engine: CarEngineData, location: CarLocationData)
+
+  carSpeed
+    .cogroup[CarData]({ case (a, b, agg) => agg.copy(speed = b) })
+    .cogroup[CarEngineData](carEngine, { case (a, b, agg) => agg.copy(engine = b) })
+    .cogroup[CarLocationData](carLocation, { case (a, b, agg) => agg.copy(location = b) })
+    .aggregate(CarData(null, null, null))(Materialized.)
 
   val topology = builder.build()
   val streams = new KafkaStreams(topology, props)

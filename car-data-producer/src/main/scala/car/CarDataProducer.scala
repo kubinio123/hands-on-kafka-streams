@@ -29,16 +29,16 @@ object CarDataProducer extends IOApp {
       .use { producer =>
         Seq(
           (IO(RandomData.carSpeed).flatMap(send(producer)("car-speed", _)) *> IO(println("send car speed data...")) *> IO.sleep(
-            30.seconds
+            60.seconds
           )).foreverM,
           (IO(RandomData.carEngine).flatMap(send(producer)("car-engine", _)) *> IO(println("send car engine data...")) *> IO.sleep(
-            30.seconds
+            60.seconds
           )).foreverM,
           (IO(RandomData.carLocation).flatMap(send(producer)("car-location", _)) *> IO(println("send car location data...")) *> IO.sleep(
-            30.seconds
+            60.seconds
           )).foreverM,
           (IO(RandomData.locationData).flatMap(send(producer)("location-data", _)) *> IO(println("send location data...")) *> IO.sleep(
-            30.seconds
+            60.seconds
           )).foreverM
         ).parSequence_.as(ExitCode.Success)
       }
