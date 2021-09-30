@@ -21,6 +21,7 @@ object Avro {
   implicit val carDataKeyRF: KeyRecordFormat[CarDataKey] = RecordFormat[CarDataKey].taggedWith[KeyRFTag]
   implicit val carSpeedDataRF: ValueRecordFormat[CarSpeedData] = RecordFormat[CarSpeedData].taggedWith[ValueRFTag]
   implicit val carEngineDataRF: ValueRecordFormat[CarEngineData] = RecordFormat[CarEngineData].taggedWith[ValueRFTag]
+  implicit val carDataAggregateRF: ValueRecordFormat[CarDataAggregate] = RecordFormat[CarDataAggregate].taggedWith[ValueRFTag]
   implicit val carLocationDataRF: ValueRecordFormat[CarLocationData] = RecordFormat[CarLocationData].taggedWith[ValueRFTag]
   implicit val driverNotificationRF: ValueRecordFormat[DriverNotification] = RecordFormat[DriverNotification].taggedWith[ValueRFTag]
 

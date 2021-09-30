@@ -24,7 +24,7 @@ object RandomData {
       carId <- carIds
       city = cities(Random.nextInt(cities.size))
       street = streets(Random.nextInt(streets.size))
-    } yield CarDataKey(carId) -> CarLocationData(city, street)
+    } yield CarDataKey(carId) -> CarLocationData(LocationDataKey(city, street))
 
   def locationData: Seq[(LocationDataKey, LocationData)] =
     for {
