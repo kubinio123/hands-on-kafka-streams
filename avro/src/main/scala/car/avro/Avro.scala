@@ -12,22 +12,21 @@ object Avro {
   type ValueRFTag
   type ValueRecordFormat[V] = RecordFormat[V] @@ ValueRFTag
 
-  val carDataKeySchema: Schema = AvroSchema[CarDataKey]
-  val carSpeedDataSchema: Schema = AvroSchema[CarSpeedData]
-  val carEngineDataSchema: Schema = AvroSchema[CarEngineData]
-  val carLocationDataSchema: Schema = AvroSchema[CarLocationData]
+  val carIdSchema: Schema = AvroSchema[CarId]
+  val carSpeedSchema: Schema = AvroSchema[CarSpeed]
+  val carEngineSchema: Schema = AvroSchema[CarEngine]
+  val carLocationSchema: Schema = AvroSchema[CarLocation]
   val driverNotificationSchema: Schema = AvroSchema[DriverNotification]
 
-  implicit val carDataKeyRF: KeyRecordFormat[CarDataKey] = RecordFormat[CarDataKey].taggedWith[KeyRFTag]
-  implicit val carSpeedDataRF: ValueRecordFormat[CarSpeedData] = RecordFormat[CarSpeedData].taggedWith[ValueRFTag]
-  implicit val carEngineDataRF: ValueRecordFormat[CarEngineData] = RecordFormat[CarEngineData].taggedWith[ValueRFTag]
-  implicit val carDataAggregateRF: ValueRecordFormat[CarDataAggregate] = RecordFormat[CarDataAggregate].taggedWith[ValueRFTag]
-  implicit val carLocationDataRF: ValueRecordFormat[CarLocationData] = RecordFormat[CarLocationData].taggedWith[ValueRFTag]
+  implicit val carIdRF: KeyRecordFormat[CarId] = RecordFormat[CarId].taggedWith[KeyRFTag]
+  implicit val carSpeedRF: ValueRecordFormat[CarSpeed] = RecordFormat[CarSpeed].taggedWith[ValueRFTag]
+  implicit val carEngineRF: ValueRecordFormat[CarEngine] = RecordFormat[CarEngine].taggedWith[ValueRFTag]
+  implicit val carLocationRF: ValueRecordFormat[CarLocation] = RecordFormat[CarLocation].taggedWith[ValueRFTag]
   implicit val driverNotificationRF: ValueRecordFormat[DriverNotification] = RecordFormat[DriverNotification].taggedWith[ValueRFTag]
 
-  val locationDataKeySchema: Schema = AvroSchema[LocationDataKey]
+  val locationDataKeySchema: Schema = AvroSchema[LocationId]
   val locationDataSchema: Schema = AvroSchema[LocationData]
 
-  implicit val locationDataKeyRF: KeyRecordFormat[LocationDataKey] = RecordFormat[LocationDataKey].taggedWith[KeyRFTag]
+  implicit val locationDataKeyRF: KeyRecordFormat[LocationId] = RecordFormat[LocationId].taggedWith[KeyRFTag]
   implicit val locationDataRF: ValueRecordFormat[LocationData] = RecordFormat[LocationData].taggedWith[ValueRFTag]
 }

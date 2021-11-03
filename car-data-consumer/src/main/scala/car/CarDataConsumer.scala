@@ -17,11 +17,11 @@ object CarDataConsumer extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     import Avro._
     Seq(
-      Consume.forever[CarDataKey, CarSpeedData]("car-speed"),
-      Consume.forever[CarDataKey, CarEngineData]("car-engine"),
-      Consume.forever[CarDataKey, CarLocationData]("car-location"),
-      Consume.forever[LocationDataKey, LocationData]("location-data"),
-      Consume.forever[CarDataKey, DriverNotification]("driver-notification")
+//      Consume.forever[CarId, CarSpeed]("car-speed"),
+//      Consume.forever[CarId, CarEngine]("car-engine"),
+//      Consume.forever[CarId, CarLocation]("car-location"),
+//      Consume.forever[LocationId, LocationData]("location-data"),
+      Consume.forever[CarId, DriverNotification]("driver-notification")
     ).parSequence_.as(ExitCode.Success)
   }
 }

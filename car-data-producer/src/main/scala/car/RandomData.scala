@@ -7,30 +7,30 @@ object RandomData {
   val cities = Seq("Wroclaw", "Cracow")
   val streets = Seq("Sezamowa", "Tunelowa")
 
-  def carSpeed: Seq[(CarDataKey, CarSpeedData)] =
+  def carSpeed: Seq[(CarId, CarSpeed)] =
     for {
       carId <- carIds
       speed = Random.between(5, 10) * 10
-    } yield CarDataKey(carId) -> CarSpeedData(speed)
+    } yield CarId(carId) -> CarSpeed(speed)
 
-  def carEngine: Seq[(CarDataKey, CarEngineData)] =
+  def carEngine: Seq[(CarId, CarEngine)] =
     for {
       carId <- carIds
       rpm = Random.between(25, 35) * 100
-    } yield CarDataKey(carId) -> CarEngineData(rpm)
+    } yield CarId(carId) -> CarEngine(rpm)
 
-  def carLocation: Seq[(CarDataKey, CarLocationData)] =
+  def carLocation: Seq[(CarId, CarLocation)] =
     for {
       carId <- carIds
       city = cities(Random.nextInt(cities.size))
       street = streets(Random.nextInt(streets.size))
-    } yield CarDataKey(carId) -> CarLocationData(LocationDataKey(city, street))
+    } yield CarId(carId) -> CarLocation(LocationId(city, street))
 
-  def locationData: Seq[(LocationDataKey, LocationData)] =
+  def locationData: Seq[(LocationId, LocationData)] =
     for {
       city <- cities
       street <- streets
       speedLimit = Random.between(3, 7) * 10
       trafficVolume = TrafficVolume(Random.nextInt(TrafficVolume.maxId))
-    } yield LocationDataKey(city, street) -> LocationData(speedLimit, trafficVolume)
+    } yield LocationId(city, street) -> LocationData(speedLimit, trafficVolume)
 }
