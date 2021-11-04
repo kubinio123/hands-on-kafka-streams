@@ -5,3 +5,5 @@ kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication
 kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic car-location
 kafka-topics --create --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1 --topic location-data
 kafka-topics --create --bootstrap-server kafka:9092 --partitions 2 --replication-factor 1 --topic driver-notification
+
+sbt "project avro" "run car.avro.RegisterAvroSchemas"

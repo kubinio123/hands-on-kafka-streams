@@ -1,6 +1,7 @@
 package car
 
 import car.Avro4s._
+import cats.implicits._
 import car.avro.Avro._
 import com.sksamuel.avro4s.BinaryFormat
 import com.sksamuel.avro4s.kafka.GenericSerde
@@ -36,19 +37,19 @@ object DriverNotifier extends App {
   val window = JoinWindows.of(Duration.of(60, SECONDS))
 
   val carData: KTable[CarId, CarData] = carSpeed
-    .cogroup[CarData]({ case (_, speed, agg) => agg.copy(speed = speed) })
-    .cogroup[CarEngine](carEngine, { case (_, engine, agg) => agg.copy(engine = engine) })
-    .cogroup[CarLocation](carLocation, { case (_, location, agg) => agg.copy(location = location) })
+    .cogroup[CarData]({ case (_, speed, agg) => agg.copy(speed = speed.some) })
+    .cogroup[CarEngine](carEngine, { case (_, engine, agg) => agg.copy(engine = engine.some) })
+    .cogroup[CarLocation](carLocation, { case (_, location, agg) => agg.copy(location = location.some) })
     .aggregate(CarData.empty)
-//
-//  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData.join[CarAndLocationData, LocationId, LocationData](
-//    locationData,
-//    keyExtractor = (carData: CarData) => carData.location.locationId,
-//    joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
-//    materialized = materializedFromSerde[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]
-//  )
 
-  carData.toStream
+  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData.join[CarAndLocationData, LocationId, LocationData](
+    locationData,
+    keyExtractor = (carData: CarData) => carData.location.get.locationId,
+    joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
+    materialized = materializedFromSerde[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]
+  )
+
+  carAndLocationData.toStream
     .map { case (k, v) => (k, DriverNotification(v.toString)) }
     .peek { case (k, v) => println(s"$k -> $v") }
     .to("driver-notification")
@@ -62,10 +63,10 @@ object DriverNotifier extends App {
 }
 
 object DriverNotifierData {
-  case class CarData(speed: CarSpeed, engine: CarEngine, location: CarLocation)
+  case class CarData(speed: Option[CarSpeed], engine: Option[CarEngine], location: Option[CarLocation])
 
   object CarData {
-    val empty: CarData = CarData(null, null, null)
+    val empty: CarData = CarData(None, None, None)
   }
 
   implicit val carDataSerde: GenericSerde[CarData] = new GenericSerde[CarData](BinaryFormat)
