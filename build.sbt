@@ -30,7 +30,7 @@ lazy val driverNotifier = (project in file("driver-notifier"))
   .settings(commonSettings)
   .settings(
     name := "driver-notifier",
-    libraryDependencies ++= Seq(Libs.kafkaStreamsScala, Libs.kafkaStreamsAvro)
+    libraryDependencies ++= Seq(Libs.kafkaStreamsScala, Libs.kafkaStreamsAvro, Libs.avro4sKafka)
   )
   .dependsOn(domain, avro)
 

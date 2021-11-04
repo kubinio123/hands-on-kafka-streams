@@ -2,8 +2,8 @@ package car
 
 import car.Avro4s._
 import car.avro.Avro._
-import com.sksamuel.avro4s.RecordFormat
-import com.softwaremill.tagging._
+import com.sksamuel.avro4s.BinaryFormat
+import com.sksamuel.avro4s.kafka.GenericSerde
 import org.apache.kafka.common.utils.Bytes
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsConfig.{APPLICATION_ID_CONFIG, BOOTSTRAP_SERVERS_CONFIG}
@@ -24,7 +24,7 @@ object DriverNotifier extends App {
   val props = new Properties()
   props.put(APPLICATION_ID_CONFIG, "driver-notifier")
   props.put(BOOTSTRAP_SERVERS_CONFIG, "kafka:9092")
-  props.put("schema.registry.url", "http://schema-registry:8081")
+  //props.put("schema.registry.url", "http://schema-registry:8081")
 
   val builder: StreamsBuilder = new StreamsBuilder
 
@@ -40,13 +40,13 @@ object DriverNotifier extends App {
     .cogroup[CarEngine](carEngine, { case (_, engine, agg) => agg.copy(engine = engine) })
     .cogroup[CarLocation](carLocation, { case (_, location, agg) => agg.copy(location = location) })
     .aggregate(CarData.empty)
-
-  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData.join[CarAndLocationData, LocationId, LocationData](
-    locationData,
-    keyExtractor = (carData: CarData) => carData.location.locationId,
-    joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
-    materialized = materializedFromSerde[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]
-  )
+//
+//  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData.join[CarAndLocationData, LocationId, LocationData](
+//    locationData,
+//    keyExtractor = (carData: CarData) => carData.location.locationId,
+//    joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
+//    materialized = materializedFromSerde[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]
+//  )
 
   carData.toStream
     .map { case (k, v) => (k, DriverNotification(v.toString)) }
@@ -68,9 +68,9 @@ object DriverNotifierData {
     val empty: CarData = CarData(null, null, null)
   }
 
-  implicit val carDataRF: ValueRecordFormat[CarData] = RecordFormat[CarData].taggedWith[ValueRFTag]
+  implicit val carDataSerde: GenericSerde[CarData] = new GenericSerde[CarData](BinaryFormat)
 
   case class CarAndLocationData(carData: CarData, locationData: LocationData)
 
-  implicit val carAndLocationDataRF: ValueRecordFormat[CarAndLocationData] = RecordFormat[CarAndLocationData].taggedWith[ValueRFTag]
+  implicit val carAndLocationDataSerde: GenericSerde[CarAndLocationData] = new GenericSerde[CarAndLocationData](BinaryFormat)
 }

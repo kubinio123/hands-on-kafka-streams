@@ -20,6 +20,7 @@ object Dependencies {
     val kafkaStreamsAvro = "io.confluent" % "kafka-streams-avro-serde" % V.kafkaAvro
 
     val avro4sCore = "com.sksamuel.avro4s" % "avro4s-core_2.13" % V.avro4s
+    val avro4sKafka = "com.sksamuel.avro4s" % "avro4s-kafka_2.13" % V.avro4s
 
     val sttp3Core = "com.softwaremill.sttp.client3" %% "core" % V.sttp3
     val sttp3Circe = "com.softwaremill.sttp.client3" %% "circe" % V.sttp3
