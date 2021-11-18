@@ -1,6 +1,6 @@
-package car
+package car.drivernotifier
 
-import car.avro.Avro.{KeyRecordFormat, ValueRecordFormat}
+import car.avro.{KeyRecordFormat, ValueRecordFormat}
 import com.sksamuel.avro4s.RecordFormat
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
 import org.apache.avro.generic.GenericRecord

@@ -1,11 +1,11 @@
-package car.avro
+package car
 
-import car._
+import car.domain._
 import com.sksamuel.avro4s.{AvroSchema, RecordFormat}
 import com.softwaremill.tagging._
 import org.apache.avro.Schema
 
-object Avro {
+package object avro {
   type KeyRFTag
   type KeyRecordFormat[K] = RecordFormat[K] @@ KeyRFTag
 
@@ -24,9 +24,9 @@ object Avro {
   implicit val carLocationRF: ValueRecordFormat[CarLocation] = RecordFormat[CarLocation].taggedWith[ValueRFTag]
   implicit val driverNotificationRF: ValueRecordFormat[DriverNotification] = RecordFormat[DriverNotification].taggedWith[ValueRFTag]
 
-  val locationDataKeySchema: Schema = AvroSchema[LocationId]
+  val locationIdSchema: Schema = AvroSchema[LocationId]
   val locationDataSchema: Schema = AvroSchema[LocationData]
 
-  implicit val locationDataKeyRF: KeyRecordFormat[LocationId] = RecordFormat[LocationId].taggedWith[KeyRFTag]
+  implicit val locationIdRF: KeyRecordFormat[LocationId] = RecordFormat[LocationId].taggedWith[KeyRFTag]
   implicit val locationDataRF: ValueRecordFormat[LocationData] = RecordFormat[LocationData].taggedWith[ValueRFTag]
 }

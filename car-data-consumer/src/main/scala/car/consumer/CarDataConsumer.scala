@@ -1,8 +1,9 @@
-package car
+package car.consumer
 
-import car.avro.Avro
+import car.avro._
+import car.domain._
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import cats.syntax.all._
+import cats.implicits._
 import com.sksamuel.avro4s.RecordFormat
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
@@ -14,24 +15,29 @@ import java.time.Duration
 import scala.jdk.CollectionConverters._
 
 object CarDataConsumer extends IOApp {
-  override def run(args: List[String]): IO[ExitCode] = {
-    import Avro._
+
+  val props: Map[String, Object] = Map(
+    GROUP_ID_CONFIG -> "car-metrics-consumer",
+    BOOTSTRAP_SERVERS_CONFIG -> "kafka:9092",
+    AUTO_OFFSET_RESET_CONFIG -> "earliest",
+    KEY_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
+    VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
+    SCHEMA_REGISTRY_URL_CONFIG -> "http://schema-registry:8081"
+  )
+
+  override def run(args: List[String]): IO[ExitCode] =
     Seq(
-//      Consume.forever[CarId, CarSpeed]("car-speed"),
-//      Consume.forever[CarId, CarEngine]("car-engine"),
-//      Consume.forever[CarId, CarLocation]("car-location"),
-//      Consume.forever[LocationId, LocationData]("location-data"),
-      Consume.forever[CarId, DriverNotification]("driver-notification")
+      pollForever[CarId, CarSpeed]("car-speed"),
+      pollForever[CarId, CarEngine]("car-engine"),
+      pollForever[CarId, CarLocation]("car-location"),
+      pollForever[LocationId, LocationData]("location-data"),
+      pollForever[CarId, DriverNotification]("driver-notification")
     ).parSequence_.as(ExitCode.Success)
-  }
-}
 
-object Consume {
-
-  def forever[K, V](topic: String)(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Nothing] =
+  private def pollForever[K, V](topic: String)(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Nothing] =
     Resource
       .make(IO {
-        val consumer = new KafkaConsumer[IndexedRecord, IndexedRecord](props.asJava)
+        val consumer = new KafkaConsumer[IndexedRecord, IndexedRecord](CarDataConsumer.props.asJava)
         consumer.subscribe(Seq(topic).asJava)
         consumer
       })(c => IO(println(s"[$topic] closing consumer...")) *> IO(c.close()))
@@ -43,13 +49,4 @@ object Consume {
         } yield ()
         consume.foreverM
       }
-
-  val props: Map[String, Object] = Map(
-    GROUP_ID_CONFIG -> "car-metrics-consumer",
-    BOOTSTRAP_SERVERS_CONFIG -> "kafka:9092",
-    AUTO_OFFSET_RESET_CONFIG -> "earliest",
-    KEY_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
-    VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
-    SCHEMA_REGISTRY_URL_CONFIG -> "http://schema-registry:8081"
-  )
 }

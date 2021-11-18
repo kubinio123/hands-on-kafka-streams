@@ -1,11 +1,13 @@
-package car
+package car.producer
+
+import car.domain._
 
 import scala.util.Random
 
 object RandomData {
-  val carIds = Seq(1, 2)
-  val cities = Seq("Wroclaw", "Cracow")
-  val streets = Seq("Sezamowa", "Tunelowa")
+  private val carIds = Seq(1, 2)
+  private val cities = Seq("Wroclaw", "Cracow")
+  private val streets = Seq("Sezamowa", "Tunelowa")
 
   def carSpeed: Seq[(CarId, CarSpeed)] =
     for {
@@ -17,7 +19,8 @@ object RandomData {
     for {
       carId <- carIds
       rpm = Random.between(25, 35) * 100
-    } yield CarId(carId) -> CarEngine(rpm)
+      fuelLevel = (math floor Random.between(0d, 1d) * 100) / 100
+    } yield CarId(carId) -> CarEngine(rpm, fuelLevel)
 
   def carLocation: Seq[(CarId, CarLocation)] =
     for {
@@ -32,5 +35,6 @@ object RandomData {
       street <- streets
       speedLimit = Random.between(3, 7) * 10
       trafficVolume = TrafficVolume(Random.nextInt(TrafficVolume.maxId))
-    } yield LocationId(city, street) -> LocationData(speedLimit, trafficVolume)
+      gasStationNearby = Random.nextBoolean()
+    } yield LocationId(city, street) -> LocationData(speedLimit, trafficVolume, gasStationNearby)
 }
