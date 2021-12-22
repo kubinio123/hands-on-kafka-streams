@@ -19,20 +19,13 @@ object CarDataConsumer extends IOApp {
   val props: Map[String, Object] = Map(
     GROUP_ID_CONFIG -> "car-metrics-consumer",
     BOOTSTRAP_SERVERS_CONFIG -> "kafka:9092",
-    AUTO_OFFSET_RESET_CONFIG -> "earliest",
     KEY_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
     VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[KafkaAvroDeserializer],
     SCHEMA_REGISTRY_URL_CONFIG -> "http://schema-registry:8081"
   )
 
   override def run(args: List[String]): IO[ExitCode] =
-    Seq(
-      pollForever[CarId, CarSpeed]("car-speed"),
-      pollForever[CarId, CarEngine]("car-engine"),
-      pollForever[CarId, CarLocation]("car-location"),
-      pollForever[LocationId, LocationData]("location-data"),
-      pollForever[CarId, DriverNotification]("driver-notification")
-    ).parSequence_.as(ExitCode.Success)
+    pollForever[CarId, DriverNotification]("driver-notification").as(ExitCode.Success)
 
   private def pollForever[K, V](topic: String)(implicit krf: RecordFormat[K], vrf: RecordFormat[V]): IO[Nothing] =
     Resource

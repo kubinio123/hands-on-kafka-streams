@@ -9,7 +9,7 @@ import org.apache.kafka.streams.scala.serialization.Serdes
 
 import scala.jdk.CollectionConverters._
 
-object Avro4s {
+object AvroSerdes {
 
   private val props = Map("schema.registry.url" -> "http://schema-registry:8081")
 

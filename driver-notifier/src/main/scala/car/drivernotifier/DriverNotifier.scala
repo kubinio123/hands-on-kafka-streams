@@ -2,7 +2,7 @@ package car.drivernotifier
 
 import car.avro._
 import car.domain._
-import car.drivernotifier.Avro4s._
+import car.drivernotifier.AvroSerdes._
 import cats.implicits._
 import com.sksamuel.avro4s.BinaryFormat
 import com.sksamuel.avro4s.kafka.GenericSerde
@@ -29,7 +29,7 @@ object DriverNotifier extends App {
   val carSpeed: KGroupedStream[CarId, CarSpeed] = builder.stream[CarId, CarSpeed]("car-speed").groupByKey
   val carEngine: KGroupedStream[CarId, CarEngine] = builder.stream[CarId, CarEngine]("car-engine").groupByKey
   val carLocation: KGroupedStream[CarId, CarLocation] = builder.stream[CarId, CarLocation]("car-location").groupByKey
-  val locationData: KTable[LocationId, LocationData] = builder.stream[LocationId, LocationData]("location-data").toTable
+  val locationData: KTable[LocationId, LocationData] = builder.table[LocationId, LocationData]("location-data")
 
   implicit val carDataSerde: GenericSerde[CarData] = new GenericSerde[CarData](BinaryFormat)
 
@@ -41,16 +41,18 @@ object DriverNotifier extends App {
 
   implicit val carAndLocationDataSerde: GenericSerde[CarAndLocationData] = new GenericSerde[CarAndLocationData](BinaryFormat)
 
-  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData.join[CarAndLocationData, LocationId, LocationData](
-    locationData,
-    keyExtractor = (carData: CarData) => carData.location.get.locationId,
-    joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
-    materialized = implicitly[Materialized[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]]
-  )
+  val carAndLocationData: KTable[CarId, CarAndLocationData] = carData
+    .filter({ case (_, carData) => carData.location.isDefined })
+    .join[CarAndLocationData, LocationId, LocationData](
+      locationData,
+      keyExtractor = (carData: CarData) => carData.location.get.locationId,
+      joiner = (carData: CarData, locationData: LocationData) => CarAndLocationData(carData, locationData),
+      materialized = implicitly[Materialized[CarId, CarAndLocationData, KeyValueStore[Bytes, Array[Byte]]]]
+    )
 
   def print[K, V](k: K, v: V): Unit = println(s"$k -> $v")
 
-  carAndLocationData.toStream.peek(print).flatMapValues(DriverNotifications(_)).peek(print).to("driver-notification")
+  carAndLocationData.toStream.flatMapValues(DriverNotifications(_)).to("driver-notification")
 
   val topology = builder.build()
   val streams = new KafkaStreams(topology, props)
