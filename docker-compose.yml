@@ -38,13 +38,17 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
 
   tools:
+    depends_on:
+      - "kafka"
+      - "zookeeper"
+      - "schema-registry"
     image: cnfltraining/training-tools:19.06
     hostname: tools
     networks:
       - streams-net
     volumes:
-      - .:/root/confluent-streams/labs/streams-writing
-    working_dir: /root/confluent-streams/labs/streams-writing
+      - ./kafka-cli-scripts:/root/streams-app
+    working_dir: /root/streams-app
     command: /bin/bash
     tty: true
 
