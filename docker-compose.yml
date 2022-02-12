@@ -44,6 +44,8 @@ services:
       - "schema-registry"
     image: cnfltraining/training-tools:19.06
     hostname: tools
+    # default container names seems to differ based on version, this name is used in start-kafka.sh
+    container_name: streams-app-tools-1
     networks:
       - streams-net
     volumes:
