@@ -10,13 +10,20 @@ Scripts from `kafka-cli-scripts` directory are mounted to the _tools_ container.
 
 Run `start-kafka.sh` script. It will start up docker network and create topics as defined in `kafka-cli-scripts/create-topics.sh`.
 
-#### Running apps 
+#### Running apps
 
 Directory contains 4 sbt projects each being independent app:
 * avro - generates and registers _Avro_ schemas for data used as keys/values in created topics
 * car-data-producer - produces random data to kafka topics
 * driver-notifier - kafka streams application which aggregates data from several topics, processes and produces to `driver-notifications`
 * car-data-consumer - can consume data from any of created kafka topics (`driver-notifications` by default)
+
+Please also add this two entries to your `etc/hosts`, since apps above reach kafka using docker hostnames:
+```
+# streams-app host entries
+127.0.0.1 kafka
+127.0.0.1 schema-registry
+```
 
 With `sbt` each app can be started in separate shell instance with the following command:
 `sbt "project <name>" "run"`, for an ex. `sbt "project carDataProducer" "run"`.
