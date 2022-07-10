@@ -1,3 +1,7 @@
+### Read the blog
+
+This code was created for the purpose of [this blog post](https://softwaremill.com/hands-on-kafka-streams-in-scala/), I encourage you to read it first :)
+
 ### Running the example
 
 I assume that `sbt` is installed directly on your OS.
